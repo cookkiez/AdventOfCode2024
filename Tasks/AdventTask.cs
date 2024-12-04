@@ -12,14 +12,23 @@
             return input.Split("\n").Select(l => l.Trim()).ToList();
         }
 
+        public bool CheckIfIndexOutsideMatrix<T>(T[][] matrix, int row, int col)
+        {
+            return row >= matrix.Length || col >= matrix[0].Length || row < 0 || col < 0;
+        }
+
         public string[] GetLinesArray(string input)
         {
             return input.Split("\n").Select(l => l.Trim()).ToArray();
         }
+        public char[][] GetMatrixArray(string input)
+        {
+            return input.Split("\n").Select(l => l.Trim().ToCharArray()).ToArray();
+        }
 
         protected enum Direction
         {
-            North, West, South, East, None
+            North, West, South, East
         }
 
         protected (int Row, int Col) MakeMove((int Row, int Col) block, Direction movingDirection) =>
