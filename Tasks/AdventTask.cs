@@ -17,6 +17,11 @@
             return row >= matrix.Length || col >= matrix[0].Length || row < 0 || col < 0;
         }
 
+        public bool CheckIfIndexOutsideListMatrix<T>(List<List<T>> matrix, int row, int col)
+        {
+            return row >= matrix.Count || col >= matrix[0].Count || row < 0 || col < 0;
+        }
+
         public string[] GetLinesArray(string input)
         {
             return input.Split("\n").Select(l => l.Trim()).ToArray();
@@ -24,6 +29,12 @@
         public char[][] GetMatrixArray(string input)
         {
             return input.Split("\n").Select(l => l.Trim().ToCharArray()).ToArray();
+        }
+
+
+        public List<List<char>> GetMatrixList(string input)
+        {
+            return input.Split("\n").Select(l => l.Trim().ToCharArray().ToList()).ToList();
         }
 
         protected enum Direction
