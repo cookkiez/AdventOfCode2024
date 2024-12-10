@@ -31,6 +31,13 @@
             return input.Split("\n").Select(l => l.Trim().ToCharArray()).ToArray();
         }
 
+        public int[][] GetMatrixIntArray(string input)
+        {
+            return input.Split("\n").Select(l => 
+                l.Trim().ToCharArray().ToList().Select(char.GetNumericValue).Select(d => (int)d).ToArray())
+                .ToArray();
+        }
+
 
         public List<List<char>> GetMatrixList(string input)
         {
