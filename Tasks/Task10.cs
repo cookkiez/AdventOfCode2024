@@ -17,7 +17,7 @@
                 {
                     var nines = new HashSet<(int, int)>();
                     if (map[row][col] == 0)
-                        IsTrailValid((row, col), map, new Dictionary<(int, int), int>(), nines);
+                        IsTrailValid((row, col), map, new HashSet<(int, int)>(), nines);
                     result += nines.Count();
                 }
             }
@@ -35,7 +35,7 @@
                     if (map[row][col] == 0)
                     {
                         var paths = new HashSet<string>();
-                        GetAllTrails((row, col), map, new Dictionary<(int, int), int>(), paths, new List<(int, int)>());
+                        GetAllTrails((row, col), map, paths, new List<(int, int)>());
                         var filteredPaths = paths.Distinct().Select(p => p.Split("(")).Where(p => p.Count() == 11).ToList();
                         result += filteredPaths.Count();
                     }
@@ -44,8 +44,7 @@
             Console.WriteLine(result);
         }
 
-        private void GetAllTrails((int Row, int Col) position, int[][] map,
-            Dictionary<(int, int), int> visitedPositions, HashSet<string> paths, List<(int, int)> currentPath)
+        private void GetAllTrails((int Row, int Col) position, int[][] map, HashSet<string> paths, List<(int, int)> currentPath)
         {
             if (CheckIfIndexOutsideMatrix<int>(map, position.Row, position.Col))
                 return;
@@ -62,27 +61,23 @@
                 return;
             }
 
-            var result = 0;
             foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
             {
-                //if (visitedPositions.ContainsKey(position))
-                //    return;
                 var nextPos = MakeMove(position, direction);
                 if (CheckIfIndexOutsideMatrix<int>(map, nextPos.Row, nextPos.Col))
                     continue;
                 var delta = map[nextPos.Row][nextPos.Col] - map[position.Row][position.Col];
                 if (delta == 1)
-                    GetAllTrails(MakeMove(position, direction), map, visitedPositions, paths, currentPath);
+                    GetAllTrails(MakeMove(position, direction), map, paths, currentPath);
             }
 
             currentPath.Remove(position);
-            //visitedPositions.Add(position, result);
 
             return;
         }
 
         private void IsTrailValid((int Row, int Col) position, int[][] map, 
-            Dictionary<(int, int), int> visitedPositions, HashSet<(int, int)> nines)
+            HashSet<(int, int)> visitedPositions, HashSet<(int, int)> nines)
         {
             if (CheckIfIndexOutsideMatrix<int>(map, position.Row, position.Col))
                 return;
@@ -90,10 +85,9 @@
             if (map[position.Row][position.Col] == 9)
                 nines.Add(position);
 
-            var result = 0;
             foreach(var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
             {
-                if (visitedPositions.ContainsKey(position))
+                if (visitedPositions.Contains(position))
                     return;
                 var nextPos = MakeMove(position, direction);
                 if (CheckIfIndexOutsideMatrix<int>(map, nextPos.Row, nextPos.Col))
@@ -103,7 +97,7 @@
                     IsTrailValid(MakeMove(position, direction), map, visitedPositions, nines);
             }
 
-            visitedPositions.Add(position, result);
+            visitedPositions.Add(position);
 
             return;
         }
