@@ -49,6 +49,11 @@
             North, West, South, East
         }
 
+        protected enum DirectionDiag
+        {
+            NorthWest, SouthWest, NorthEast, SouthEast
+        }
+
         protected (int Row, int Col) MakeMove((int Row, int Col) block, Direction movingDirection) =>
             movingDirection switch
             {
@@ -56,6 +61,16 @@
                 Direction.East => (block.Row, block.Col + 1),
                 Direction.South => (block.Row + 1, block.Col),
                 Direction.North => (block.Row - 1, block.Col),
+                _ => throw new Exception()
+            };
+
+        protected (int Row, int Col) MakeMove((int Row, int Col) block, DirectionDiag movingDirection) =>
+            movingDirection switch
+            {
+                DirectionDiag.NorthWest => (block.Row - 1, block.Col - 1),
+                DirectionDiag.NorthEast => (block.Row - 1, block.Col + 1),
+                DirectionDiag.SouthWest => (block.Row + 1, block.Col - 1),
+                DirectionDiag.SouthEast => (block.Row + 1, block.Col + 1),
                 _ => throw new Exception()
             };
 
