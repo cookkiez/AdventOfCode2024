@@ -54,7 +54,7 @@
             NorthWest, SouthWest, NorthEast, SouthEast
         }
 
-        protected (int Row, int Col) MakeMove((int Row, int Col) block, Direction movingDirection) =>
+        protected static (int Row, int Col) MakeMove((int Row, int Col) block, Direction movingDirection) =>
             movingDirection switch
             {
                 Direction.West => (block.Row, block.Col - 1),
