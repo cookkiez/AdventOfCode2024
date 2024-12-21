@@ -14,7 +14,7 @@ namespace AdventOfCode2024.Tasks
         public override void Solve1(string input)
         {
             long result = 1;
-            var maxBlock = new Block(7, 11);
+            var maxBlock = new Block(103, 101);
             var pRegex = new Regex("p=(\\d+),(\\d+)");
             var vRegex = new Regex("v=([-]*\\d+),([-]*\\d+)");
             var lines = GetLinesList(input);
@@ -50,15 +50,44 @@ namespace AdventOfCode2024.Tasks
                     if (robot.CheckQuadrant(quad))
                         robotsInQuadrant++;
                 }
-                result *= robotsInQuadrant;
+                if (robotsInQuadrant > 0)
+                    result *= robotsInQuadrant;
             } 
             Console.WriteLine(result);
         }
 
         public override void Solve2(string input)
         {
-            long result = 0;
-            Console.WriteLine(result);
+            long result = 1;
+            var maxBlock = new Block(103, 101);
+            var pRegex = new Regex("p=(\\d+),(\\d+)");
+            var vRegex = new Regex("v=([-]*\\d+),([-]*\\d+)");
+            var lines = GetLinesList(input);
+            var robots = new List<Robot>();
+            //var visited = new HashSet<string>();
+            foreach (var line in lines)
+            {
+                var pos = pRegex.Match(line).Groups.Values.Skip(1).ToList().Select(g => int.Parse(g.Value)).ToList();
+                var vel = vRegex.Match(line).Groups.Values.Skip(1).ToList().Select(g => int.Parse(g.Value)).ToList();
+                robots.Add(new Robot
+                {
+                    Position = new Block(pos[1], pos[0]),
+                    Velocity = new Block(vel[1], vel[0])
+                });
+            }
+            var visited = new Dictionary<int, int>();
+            for (var i = 1; i <= 10000; i++)
+            {
+                var str = "";
+                foreach (var robot in robots)
+                {
+                    robot.Position.Plus(robot.Velocity).Modulus(maxBlock);
+                }
+                var distinct = robots.DistinctBy(r => (r.Position.Row, r.Position.Col)).Count();
+                if (!visited.ContainsKey(distinct))
+                    visited.Add(distinct, i);
+            }
+            Console.WriteLine(visited[visited.Keys.Max()]);
         }
     }
 
@@ -68,7 +97,7 @@ namespace AdventOfCode2024.Tasks
         public Block Velocity { get; set; }
 
         public bool CheckQuadrant((int a, int b, int c, int d) quadrant) =>
-            (quadrant.a <= Position.Col && Position.Col <= quadrant.b) && (quadrant.c <= Position.Row && Position.Row < quadrant.d);
+            (quadrant.a <= Position.Col && Position.Col <= quadrant.b) && (quadrant.c <= Position.Row && Position.Row <= quadrant.d);
     }
 
     class Block
@@ -76,16 +105,24 @@ namespace AdventOfCode2024.Tasks
         public int Row { get; set; }
         public int Col { get; set; }
 
+        private int MaxRow = 103;
+        private int MaxCol = 101;
+
         public Block(int row, int col) => (Row, Col) = (row, col);
         public Block Plus(Block y)
         {
             this.Row += y.Row;
             this.Col += y.Col;
+            //if (this.Row < 0)
+            //    this.Row = MaxRow + this.Row;
+            //if (this.Col < 0)
+            //    this.Col = MaxCol + this.Col;
             return this;
         }
 
+        private int FixIndex(int index, int maxValue) => (index < 0) ? maxValue + index : index;
         public Block Multiply(int mul) => new Block(this.Row * mul, this.Col * mul);
         public void Abs() => (this.Row, this.Col) = (Math.Abs(this.Row), Math.Abs(this.Col));
-        public void Modulus(Block mod) => (this.Row, this.Col) = (this.Row % mod.Row, this.Col % mod.Col);
+        public void Modulus(Block mod) => (this.Row, this.Col) = (FixIndex(this.Row % mod.Row, MaxRow), FixIndex(this.Col % mod.Col, MaxCol));
     }
 }
