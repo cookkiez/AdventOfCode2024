@@ -17,6 +17,11 @@
             return row >= matrix.Length || col >= matrix[0].Length || row < 0 || col < 0;
         }
 
+        public bool CheckIfIndexOutsideMatrix(int maxRow, int maxCol, int row, int col)
+        {
+            return row >= maxRow || col >= maxCol || row < 0 || col < 0;
+        }
+
         public bool CheckIfIndexOutsideListMatrix<T>(List<List<T>> matrix, int row, int col)
         {
             return row >= matrix.Count || col >= matrix[0].Count || row < 0 || col < 0;
@@ -83,5 +88,13 @@
                 Direction.East => Direction.West,
                 _ => throw new Exception()
             };
+
+        protected void CheckAndAddToDictionary<T>(Dictionary<T, long> dict, T key, long value)
+        {
+            if (!dict.ContainsKey(key))
+                dict.Add(key, value);
+            else 
+                dict[key] += value;
+        }
     }
 }
