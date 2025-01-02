@@ -23,7 +23,19 @@
             Console.WriteLine(result);
         }
 
-        public override async void Solve2(string input)
+        /*
+            PseudoCode
+        while (A > 0)
+            B = A % 8;
+            B = B xor 5;
+            C = A / (2^B);
+            B = B xor C;
+            A = A / (2^3);
+            B = B xor 6;
+            out += B % 8;               
+         */
+
+        public override void Solve2(string input)
         {
             long result = 0;
             var lines = GetLinesList(input);
@@ -34,46 +46,45 @@
                 long.Parse(lines[2].Split(" ")[2])
             };
             var program = lines[4].Split(" ")[1].Split(",").Select(long.Parse).ToList();
-            var tasks = new List<Task<(List<long>, long)>>();
-            long A = 281474893418241;
-            var tokenSource = new CancellationTokenSource();
-            var token = tokenSource.Token;
-            while (A < long.MaxValue && !token.IsCancellationRequested)
-            {
-                registers[0] = A;
-                var t = DoProgram(program.ToList(), registers.ToList());
-                if (t.Take(8).SequenceEqual(program.Take(8)))
-                    Console.WriteLine($"{string.Join(",", t)} ----- {A}, {A % 8}, {Convert.ToString(A, 2)}");
-                if (program.SequenceEqual(t))
-                {
-                    result = A;
-                    break;
-                }
-                if (t.Count - 1 > program.Count)
-                {
-                    Console.WriteLine(A);
-                    break;
-                }
+            var toPrint = new List<long>();
+            //while (registers[0] > 0)
+            //{
+            //    Bst(2, GetComboOperand(4, registers), registers);
+            //    Bxl(1, 5, registers);
+            //    Cdv(7, 5, registers);
+            //    Bxc(4, 5, registers);
+            //    Adv(0, 3, registers);
+            //    Bxl(1, 6, registers);
+            //    toPrint.Add(Out(5, 5, registers));
+            //    Jnz(3, 0, registers);
+            //}
 
-                //tasks.Add(Task<(List<long>, long)>.Run(() => DoProgram2(program.ToList(), registers.ToList(), A), token)
-                //    .ContinueWith(taskResult =>
-                //    {
-                //        if (taskResult.IsCanceled)
-                //        {
-                //            return taskResult.Result;
-                //        }
-                //        if (program.SequenceEqual(taskResult.Result.Item1))
-                //        {
-                //            result = taskResult.Result.Item2;
-                //            tokenSource.Cancel();
-                //        }
-                //       return (taskResult.Result, 0);
-                //    }));
-                A-= 3841;
+
+            Console.Write(Solve2(program, program, 0));
+            Console.WriteLine(string.Join(",", toPrint));
+        }
+
+        private long Solve2(List<long> program, List<long> output, long A)
+        {
+            if (output.Count == 0)
+                return A;
+            for(long a = 0; a < 1024; a++)
+            {
+                if (a >> 3 == (A & 127))
+                {
+                    var registers = new List<long> { a, 0, 0 };
+                    var tempOut = DoProgram(program, registers);
+                    if (tempOut.First() == output.Last())
+                    {
+                        var nextOutput = output.ToList();
+                        nextOutput.RemoveAt(nextOutput.Count - 1);
+                        var result = Solve2(program, nextOutput, (A << 3) | (a % 8));
+                        if (result != long.MaxValue)
+                            return result;
+                    }
+                }
             }
-            await Task.WhenAll(tasks);
-            //Console.WriteLine(string.Join(",", toPrint));
-            Console.WriteLine(result);
+            return long.MaxValue;
         }
 
         public List<long> DoProgram(List<long> program, List<long> registers)
@@ -92,13 +103,9 @@
                     programPointer = (int)val;
                 else
                     programPointer += 2;
+                //Console.WriteLine(string.Join(",", registers));
             }
             return toPrint;
-        }
-
-        public async Task<(List<long>, long)> DoProgram2(List<long> program, List<long> registers, long a)
-        {
-            return (DoProgram(program, registers), a);
         }
 
         public long DoInstruction(long opcode, long operand, List<long> registers) => opcode switch
